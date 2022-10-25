@@ -1,0 +1,71 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+title: "OKC Thunder Internship Applicant"
+author: "Alexander Rich"
+date: "October 24th, 2022"
+    
+```{r setup, include=FALSE}
+# load packages
+library(mosaic)
+library(kableExtra)
+```
+
+```{r}
+shots <- read.file("shots_data (1).csv")
+
+newDataSet <- shots %>%
+  mutate(C3 = ifelse(abs(x)>22 & abs(y) <= 7.8, 1, 0)) %>%
+  mutate(NC3 = ifelse(x^2 + y^2 > (23.75^2) & C3 == 0, 1, 0)) %>%
+  mutate(PT2 = ifelse(NC3 != 1 & C3 != 1, 1, 0)) 
+
+teamA <- newDataSet %>%
+  filter(team == "Team A")
+
+teamB <- newDataSet %>%
+  filter(team == "Team B")
+  
+sumsA <- c(sum(teamA$NC3),sum(teamA$C3),sum(teamA$PT2))
+sumsB <- c(sum(teamB$NC3),sum(teamB$C3),sum(teamB$PT2))
+
+
+totalA <- 68+18+194
+percA <- sumsA/totalA
+head(percA)
+
+totalB <- 62+11+151
+percB <- sumsB/totalB
+head(percB)
+
+#now you have to find the effective field goal percentage below
+teamAMade <- teamA %>%
+  group_by(fgmade) %>%
+  summarise(sum(NC3), sum(C3), sum(PT2))
+
+teamBMade <- teamB %>%
+  group_by(fgmade) %>%
+  summarise(sum(NC3), sum(C3), sum(PT2))
+
+efgANC3 <- (21+(21*.5))/68
+efgAC3 <- (9+(9*.5))/18
+efgAPT2 <- (95/194)
+
+efgBNC3 <- (21+(21*.5))/62
+efgBC3 <- (4+(4*.5))/11
+efgBPT2 <- (67/151)
+
+```
+Solutions for eFGs:
+
+eFG% for Team A: 
+Non Corner 3: 0.463
+Corner 3: 0.750
+Two Point: 0.490
+
+eFG% for Team B: 
+Non Corner 3: 0.508
+Corner 3: 0.545
+Two Point: 0.444
+
